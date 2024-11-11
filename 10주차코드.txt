@@ -1,0 +1,28 @@
+import numpy as np
+import tensorflow as tf
+from tensorflow import keras
+
+
+x_train = np.array([[0], [1], [2]])
+y_train = 3 * x_train + 1
+
+
+x_test = np.array([[3], [4], [5]])
+y_test = 3 * x_test + 1
+
+
+model = keras.models.Sequential()
+model.add(keras.layers.Dense(4, input_shape=(1,)))  # 입력 레이어
+model.add(keras.layers.Dense(1))  # 출력 레이어
+
+
+model.compile(loss='mean_squared_error', optimizer='Adadelta', metrics=['accuracy'])
+
+
+model.fit(x_train, y_train, epochs=30, batch_size=2)
+
+
+pred = model.predict(x_test)
+
+
+print("x_test:", x_test.flatten(), "예측 :", pred.flatten())
