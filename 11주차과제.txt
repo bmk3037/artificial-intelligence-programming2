@@ -1,0 +1,53 @@
+import tensorflow as tf
+from tensorflow import keras
+import numpy as np
+import cv2
+import matplotlib.pyplot as plt
+from google.colab import files
+
+# Step 2: MNIST 데이터로 모델 학습
+# MNIST 데이터 로드
+mnist = keras.datasets.mnist
+(train_images, train_labels), (test_images, test_labels) = mnist.load_data()
+
+# 데이터 정규화 (0~1 범위로)
+train_images, test_images = train_images / 255.0, test_images / 255.0
+
+# 딥러닝 모델 생성
+model = keras.Sequential([
+    keras.layers.Flatten(input_shape=(28, 28)),
+    keras.layers.Dense(256, activation='relu'),
+    keras.layers.Dense(10, activation='softmax')
+])
+
+# 모델 컴파일
+model.compile(optimizer='adam',
+              loss='sparse_categorical_crossentropy',
+              metrics=['accuracy'])
+
+# 모델 학습
+model.fit(train_images, train_labels, epochs=5, verbose=1)
+
+# Step 3: 그림판에서 만든 이미지를 업로드하고 전처리
+print("그림판에서 만든 숫자 이미지를 업로드하세요.")
+uploaded = files.upload()
+
+# 이미지 읽기 및 전처리
+image_path = list(uploaded.keys())[0]
+img = cv2.imread(image_path, cv2.IMREAD_GRAYSCALE)  # 그레이스케일 변환
+img = cv2.resize(img, (28, 28))  # 크기 조정
+img = 255 - img  # 색상 반전 (배경 0, 글자 255)
+img = img / 255.0  # 정규화
+
+# 전처리 결과 시각화
+plt.imshow(img, cmap='gray')
+plt.title("Preprocessed Image")
+plt.show()
+
+# Step 4: 모델 예측
+img = img[np.newaxis, :, :]  # 모델 입력 형태로 변환 (1, 28, 28)
+pred = model.predict(img)
+predicted_label = np.argmax(pred)
+
+# 결과 출력
+print(f"예측된 숫자: {predicted_label}")
